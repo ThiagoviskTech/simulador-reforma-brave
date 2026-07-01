@@ -9,24 +9,21 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#1a1a18;min-height:100vh}
 header{background:#1a1a18;color:#fff;padding:18px 32px;display:flex;align-items:center;justify-content:space-between}
-header h1{font-size:17px;font-weight:500}
-header span{font-size:12px;color:#888}
+header h1{font-size:17px;font-weight:500}header span{font-size:12px;color:#888}
 .container{max-width:960px;margin:0 auto;padding:28px 24px 60px}
 .card{background:#fff;border-radius:12px;border:1px solid #e5e4e0;padding:24px;margin-bottom:20px}
 .card-title{font-size:13px;font-weight:500;color:#52514e;margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em}
 .input-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
 .field{display:flex;flex-direction:column;gap:5px}
 .field label{font-size:12px;color:#52514e}
-.field input,.field select{padding:9px 12px;border:1px solid #dddcd8;border-radius:8px;font-size:14px;color:#1a1a18;background:#fafaf8;outline:none}
-.field input:focus,.field select:focus{border-color:#2a78d6}
+.field input,.field select{padding:9px 12px;border:1px solid #dddcd8;border-radius:8px;font-size:14px;color:#1a1a18;background:#fafaf8;outline:none;transition:border-color .15s}
+.field input:focus,.field select:focus{border-color:#2a78d6;background:#fff}
 .kpi-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
 .kpi{background:#fff;border-radius:10px;border:1px solid #e5e4e0;padding:16px 18px}
 .kpi.best{border:2px solid #2a78d6}
 .best-badge{display:inline-block;background:#e6f1fb;color:#185fa5;font-size:10px;font-weight:500;padding:2px 8px;border-radius:6px;margin-bottom:6px}
-.kpi-label{font-size:12px;color:#888;margin-bottom:4px}
-.kpi-value{font-size:22px;font-weight:500;color:#1a1a18}
-.kpi.best .kpi-value{color:#185fa5}
-.kpi-pct{font-size:12px;color:#888;margin-top:3px}
+.kpi-label{font-size:12px;color:#888;margin-bottom:4px}.kpi-value{font-size:22px;font-weight:500;color:#1a1a18}
+.kpi.best .kpi-value{color:#185fa5}.kpi-pct{font-size:12px;color:#888;margin-top:3px}
 .legend{display:flex;flex-wrap:wrap;gap:14px;margin-bottom:14px}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:13px;color:#52514e}
 .legend-sq{width:12px;height:12px;border-radius:3px;flex-shrink:0}
@@ -35,110 +32,117 @@ header span{font-size:12px;color:#888}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{text-align:left;padding:8px 10px;color:#888;font-weight:400;border-bottom:1px solid #e5e4e0;white-space:nowrap}
 td{padding:9px 10px;color:#1a1a18;border-bottom:1px solid #f0efe9;white-space:nowrap}
-tr:last-child td{border-bottom:none;font-weight:500}
-td.best{color:#185fa5;font-weight:500}
+tr:last-child td{border-bottom:none;font-weight:500}td.best{color:#185fa5;font-weight:500}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.faixa-info{font-size:11px;color:#888;margin-top:8px;font-style:italic}
 @media(max-width:640px){.two-col{grid-template-columns:1fr}header{padding:14px 16px}.container{padding:16px 12px 40px}}
-</style>
-</head>
-<body>
-<header>
-  <h1>Simulador tributário — imobiliária · Reforma 2027–2033</h1>
-  <span>Brave Accounting</span>
-</header>
+</style></head><body>
+<header><h1>Simulador tributário — imobiliária · Reforma 2027–2033</h1><span>Brave Accounting</span></header>
 <div class="container">
-  <div id="alertBox" class="alert"></div>
-  <div class="card">
-    <div class="card-title">Dados da empresa</div>
-    <div class="input-grid">
-      <div class="field"><label>Receita bruta anual (R$)</label><input type="number" id="rec" value="1300000" step="10000" min="180000" max="10000000"></div>
-      <div class="field"><label>% locação não residencial (PJ)</label><input type="number" id="pctPJ" value="30" min="0" max="100" step="5"></div>
-      <div class="field"><label>Crescimento anual projetado (%)</label><input type="number" id="growth" value="8" min="0" max="50" step="1"></div>
-      <div class="field"><label>% folha + encargos sobre receita</label><input type="number" id="pctFolha" value="12" min="0" max="60" step="1"></div>
-      <div class="field"><label>Ano base para painel</label><select id="anoBase"><option value="0">2027</option><option value="1">2028</option><option value="2">2029</option><option value="3">2030</option><option value="4">2031</option><option value="5">2032</option><option value="6">2033</option></select></div>
-    </div>
-  </div>
-  <div class="kpi-row" id="kpiRow"></div>
-  <div class="card">
-    <div class="card-title">Evolução da carga tributária 2027–2033</div>
-    <div class="legend" id="legend"></div>
-    <div class="chart-container"><canvas id="chartLine" role="img" aria-label="Evolução da carga tributária por regime"></canvas></div>
-  </div>
-  <div class="two-col">
-    <div class="card">
-      <div class="card-title">Carga % da receita — ano selecionado</div>
-      <div class="chart-container" style="height:220px"><canvas id="chartBar" role="img" aria-label="Percentual por regime no ano selecionado"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-title">Crédito gerado ao locatário PJ</div>
-      <div class="chart-container" style="height:220px"><canvas id="chartCred" role="img" aria-label="Crédito CBS e IBS ao locatário PJ por ano"></canvas></div>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Tabela comparativa — todos os anos</div>
-    <div style="overflow-x:auto">
-      <table>
-        <thead><tr><th>Ano</th><th>Receita (R$)</th><th>SN Normal</th><th>SN Híbrido</th><th>Lucro Pres.</th><th>Lucro Real</th><th>Menor carga</th></tr></thead>
-        <tbody id="tableBody"></tbody>
-      </table>
-    </div>
-  </div>
+<div id="alertBox" class="alert"></div>
+<div class="card"><div class="card-title">Dados da empresa</div>
+<div class="input-grid">
+<div class="field"><label>Receita bruta anual (R$)</label><input type="number" id="rec" value="1300000" step="10000" min="0" max="10000000"></div>
+<div class="field"><label>% locação não residencial (PJ)</label><input type="number" id="pctPJ" value="30" min="0" max="100" step="5"></div>
+<div class="field"><label>Crescimento anual projetado (%)</label><input type="number" id="growth" value="8" min="0" max="50" step="1"></div>
+<div class="field"><label>% folha + encargos sobre receita</label><input type="number" id="pctFolha" value="12" min="0" max="60" step="1"></div>
+<div class="field"><label>Ano base para painel</label><select id="anoBase"><option value="0">2027</option><option value="1">2028</option><option value="2">2029</option><option value="3">2030</option><option value="4">2031</option><option value="5">2032</option><option value="6">2033</option></select></div>
+</div><div class="faixa-info" id="faixaInfo"></div></div>
+<div class="kpi-row" id="kpiRow"></div>
+<div class="card"><div class="card-title">Evolução da carga tributária 2027–2033</div>
+<div class="legend" id="legend"></div>
+<div class="chart-container"><canvas id="chartLine" role="img" aria-label="Evolução da carga tributária por regime de 2027 a 2033"></canvas></div></div>
+<div class="two-col">
+<div class="card"><div class="card-title">Carga % da receita — ano selecionado</div>
+<div class="chart-container" style="height:220px"><canvas id="chartBar" role="img" aria-label="Percentual da receita por regime no ano selecionado"></canvas></div></div>
+<div class="card"><div class="card-title">Crédito gerado ao locatário PJ</div>
+<div class="chart-container" style="height:220px"><canvas id="chartCred" role="img" aria-label="Crédito CBS e IBS ao locatário PJ por ano"></canvas></div></div>
+</div>
+<div class="card"><div class="card-title">Tabela comparativa — todos os anos</div>
+<div style="overflow-x:auto"><table>
+<thead><tr><th>Ano</th><th>Receita (R$)</th><th>SN Normal</th><th>SN Híbrido</th><th>Lucro Pres.</th><th>Lucro Real</th><th>Menor carga</th></tr></thead>
+<tbody id="tableBody"></tbody></table></div></div>
 </div>
 <script>
 const ANOS=[2027,2028,2029,2030,2031,2032,2033];
-const CBS_NOM=[.087,.087,.088,.088,.088,.088,.088];
-const IBS_NOM=[.001,.001,.0354,.0708,.1062,.1416,.177];
-const RED=.30,ISS_F=[1,1,.8,.6,.4,.2,0];
-const SN_ALQ=[.16,.16,.16,.16,.21,.21,.33];
-const SN_DED=[35640,35640,35640,35640,125640,125640,648000];
+const CBS=[.087,.087,.088,.088,.088,.088,.088];
+const IBS=[.001,.001,.0354,.0708,.1062,.1416,.177];
+const RED=.30,ISS=[1,1,.8,.6,.4,.2,0];
+const FAIXAS=[{l:180000,a:.06,d:0},{l:360000,a:.112,d:9360},{l:720000,a:.135,d:17640},{l:1800000,a:.16,d:35640},{l:3600000,a:.21,d:125640},{l:4800000,a:.33,d:648000}];
 const CORES=['#2a78d6','#1baf7a','#eda100','#4a3aa7'];
-const REGIMES=['SN Normal','SN Híbrido','Lucro Presumido','Lucro Real'];
-function fmt(v){return'R$ '+Math.round(v).toLocaleString('pt-BR')}
-function fmtPct(v){return(v*100).toFixed(1)+'%'}
-function simular(rec0,pctPJ,growth,pctFolha){
-  const pJf=pctPJ/100,res=[];
+const REG=['SN Normal','SN Híbrido','Lucro Presumido','Lucro Real'];
+function fmt(v){return 'R$ '+Math.round(v).toLocaleString('pt-BR')}
+function pct(v,r){return (v/r*100).toFixed(1)+'%'}
+function calcSN(r){
+  for(const f of FAIXAS){
+    if(r<=f.l){
+      if(f.d===0)return{ef:f.a,desc:'1ª faixa (até R$ 180 mil) — alíquota fixa 6%'};
+      const ef=Math.max(0,(r*f.a-f.d)/r);
+      return{ef,desc:(FAIXAS.indexOf(f)+1)+'ª faixa — alíquota efetiva '+(ef*100).toFixed(2)+'%'};
+    }
+  }
+  return{ef:null,desc:'Acima do teto (R$ 4,8 milhões)'};
+}
+function sim(rec0,pJ,gw,fo){
+  const pj=pJ/100,res=[];
   for(let i=0;i<7;i++){
-    const rec=rec0*Math.pow(1+growth/100,i),recPJ=rec*pJf,folha=rec*pctFolha/100;
-    const alqEf=(rec*SN_ALQ[i]-SN_DED[i])/rec,snNormal=rec*alqEf;
-    const dasRed=snNormal*.505,cbsLoc=rec*CBS_NOM[i]*RED,ibsLoc=rec*IBS_NOM[i]*RED;
-    const credIns=rec*.02*(CBS_NOM[i]+IBS_NOM[i]),snHibrido=dasRed+cbsLoc+ibsLoc-credIns;
-    const baseP=rec*.32,irpj=baseP*.15+Math.max(0,baseP-240000)*.10,csll=baseP*.09;
-    const lp=irpj+csll+rec*.03*ISS_F[i]+rec*CBS_NOM[i]*RED+rec*IBS_NOM[i]*RED+folha*.20;
-    const lr=rec*.15*.34+Math.max(0,rec*(.0165+.076)-rec*.02)+rec*CBS_NOM[i]*RED+rec*IBS_NOM[i]*RED+folha*.20;
-    const credPJ=recPJ*(CBS_NOM[i]*RED+IBS_NOM[i]*RED);
-    res.push({ano:ANOS[i],rec,snNormal,snHibrido,lp,lr,credPJ});
+    const r=rec0*Math.pow(1+gw/100,i),rPJ=r*pj,fl=r*fo/100;
+    const sn=calcSN(r);
+    const snN=sn.ef!==null?r*sn.ef:null;
+    const snH=snN!==null?(snN*.505+r*CBS[i]*RED+r*IBS[i]*RED-r*.02*(CBS[i]+IBS[i])):null;
+    const bP=r*.32,irpj=bP*.15+Math.max(0,bP-240000)*.10,csll=bP*.09;
+    const lp=irpj+csll+r*.03*ISS[i]+r*CBS[i]*RED+r*IBS[i]*RED+fl*.20;
+    const lr=r*.15*.34+Math.max(0,r*(.0165+.076)-r*.02)+r*CBS[i]*RED+r*IBS[i]*RED+fl*.20;
+    res.push({ano:ANOS[i],r,snN,snH,lp,lr,cPJ:rPJ*(CBS[i]*RED+IBS[i]*RED),desc:sn.desc,ok:sn.ef!==null});
   }
   return res;
 }
-let cL=null,cB=null,cC=null;
+let cL,cB,cC;
 function render(){
-  const rec0=parseFloat(document.getElementById('rec').value)||1300000;
-  const pctPJ=parseFloat(document.getElementById('pctPJ').value)||30;
-  const growth=parseFloat(document.getElementById('growth').value)||8;
-  const pctFolha=parseFloat(document.getElementById('pctFolha').value)||12;
-  const anoIdx=parseInt(document.getElementById('anoBase').value)||0;
-  const aBox=document.getElementById('alertBox');
-  if(rec0>4800000){aBox.style.display='block';aBox.textContent='Receita acima de R$ 4,8 milhões: verifique enquadramento no Simples Nacional.';}
-  else if(rec0*Math.pow(1+growth/100,2)>4800000){aBox.style.display='block';aBox.textContent='Com o crescimento projetado, a empresa pode ultrapassar o limite do Simples em ~2 anos.';}
-  else aBox.style.display='none';
-  const data=simular(rec0,pctPJ,growth,pctFolha),d=data[anoIdx];
-  const vals=[d.snNormal,d.snHibrido,d.lp,d.lr],minV=Math.min(...vals),bestIdx=vals.indexOf(minV);
-  document.getElementById('kpiRow').innerHTML=REGIMES.map((r,i)=>{
-    const b=i===bestIdx;
-    return`<div class="kpi${b?' best':''}">${b?'<div class="best-badge">menor carga</div>':''}<div class="kpi-label">${r}</div><div class="kpi-value">${fmt(vals[i])}</div><div class="kpi-pct">${fmtPct(vals[i]/d.rec)} da receita</div></div>`;
+  const r0=parseFloat(document.getElementById('rec').value)||0;
+  const pJ=parseFloat(document.getElementById('pctPJ').value)||30;
+  const gw=parseFloat(document.getElementById('growth').value)||8;
+  const fo=parseFloat(document.getElementById('pctFolha').value)||12;
+  const ai=parseInt(document.getElementById('anoBase').value)||0;
+  const aB=document.getElementById('alertBox');
+  const sn0=calcSN(r0);
+  if(!r0){aB.style.display='block';aB.textContent='Informe a receita bruta anual.';}
+  else if(!sn0.ef){aB.style.display='block';aB.textContent='Receita acima de R$ 4,8 milhões: vedada ao Simples Nacional.';}
+  else if(r0*Math.pow(1+gw/100,2)>4800000){aB.style.display='block';aB.textContent='Com o crescimento projetado, pode ultrapassar o limite do Simples em ~2 anos.';}
+  else aB.style.display='none';
+  document.getElementById('faixaInfo').textContent=r0>0?'Simples Nacional — '+sn0.desc:'';
+  const data=sim(r0,pJ,gw,fo),d=data[ai];
+  const vs=[d.snN,d.snH,d.lp,d.lr];
+  const vv=vs.filter(v=>v!==null);
+  const mn=vv.length?Math.min(...vv):null;
+  const bi=vs.findIndex(v=>v===mn&&v!==null);
+  document.getElementById('kpiRow').innerHTML=REG.map((r,i)=>{
+    const v=vs[i],b=i===bi&&v!==null;
+    return '<div class="kpi'+(b?' best':'')+'">'+
+      (b?'<div class="best-badge">menor carga</div>':'')+
+      '<div class="kpi-label">'+r+'</div>'+
+      '<div class="kpi-value" style="'+(v===null?'color:#bbb;font-size:16px':'')+'">'+
+      (v!==null?fmt(v):'N/A')+'</div>'+
+      '<div class="kpi-pct">'+(v!==null?pct(v,d.r):'—')+' da receita</div></div>';
   }).join('');
-  document.getElementById('legend').innerHTML=REGIMES.map((r,i)=>`<span class="legend-item"><span class="legend-sq" style="background:${CORES[i]}"></span>${r}</span>`).join('');
-  const labels=ANOS.map(String),datasets=REGIMES.map((r,i)=>({label:r,data:data.map(d=>[d.snNormal,d.snHibrido,d.lp,d.lr][i]).map(Math.round),borderColor:CORES[i],backgroundColor:CORES[i]+'20',tension:.3,fill:false,pointRadius:4,borderWidth:2}));
+  document.getElementById('legend').innerHTML=REG.map((r,i)=>
+    '<span class="legend-item"><span class="legend-sq" style="background:'+CORES[i]+'"></span>'+r+'</span>'
+  ).join('');
+  const lb=ANOS.map(String);
+  const ds=REG.map((r,i)=>({label:r,data:data.map(d=>{const v=[d.snN,d.snH,d.lp,d.lr][i];return v!==null?Math.round(v):null;}),borderColor:CORES[i],backgroundColor:CORES[i]+'20',tension:.3,fill:false,pointRadius:4,borderWidth:2,spanGaps:false}));
   if(cL)cL.destroy();
-  cL=new Chart(document.getElementById('chartLine'),{type:'line',data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11}}},y:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11},callback:v=>'R$ '+(v/1000).toFixed(0)+'k'}}}}});
+  cL=new Chart(document.getElementById('chartLine'),{type:'line',data:{labels:lb,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11}}},y:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11},callback:v=>'R$ '+(v/1000).toFixed(0)+'k'}}}}});
   if(cB)cB.destroy();
-  cB=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:REGIMES,datasets:[{data:vals.map(v=>parseFloat((v/d.rec*100).toFixed(1))),backgroundColor:CORES,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#888',font:{size:10}}},y:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11},callback:v=>v+'%'}}}}});
+  cB=new Chart(document.getElementById('chartBar'),{type:'bar',data:{labels:REG,datasets:[{data:vs.map(v=>v!==null?parseFloat((v/d.r*100).toFixed(1)):0),backgroundColor:CORES,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#888',font:{size:10}}},y:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11},callback:v=>v+'%'}}}}});
   if(cC)cC.destroy();
-  cC=new Chart(document.getElementById('chartCred'),{type:'bar',data:{labels:ANOS.map(String),datasets:[{label:'Crédito PJ',data:data.map(d=>Math.round(d.credPJ)),backgroundColor:'#1baf7a',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#888',font:{size:11}}},y:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11},callback:v=>'R$ '+(v/1000).toFixed(0)+'k'}}}}});
-  document.getElementById('tableBody').innerHTML=data.map(d=>{const vs=[d.snNormal,d.snHibrido,d.lp,d.lr],mn=Math.min(...vs);return`<tr><td>${d.ano}</td><td>${fmt(d.rec)}</td>${vs.map(v=>`<td class="${v===mn?'best':''}">${fmt(v)}</td>`).join('')}<td class="best">${REGIMES[vs.indexOf(mn)]}</td></tr>`;}).join('');
+  cC=new Chart(document.getElementById('chartCred'),{type:'bar',data:{labels:lb,datasets:[{label:'Crédito PJ',data:data.map(d=>Math.round(d.cPJ)),backgroundColor:'#1baf7a',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#888',font:{size:11}}},y:{grid:{color:'#f0efe9'},ticks:{color:'#888',font:{size:11},callback:v=>'R$ '+(v/1000).toFixed(0)+'k'}}}}});
+  document.getElementById('tableBody').innerHTML=data.map(d=>{
+    const vs=[d.snN,d.snH,d.lp,d.lr],vv=vs.filter(v=>v!==null),mn=vv.length?Math.min(...vv):null;
+    return '<tr><td>'+d.ano+'</td><td>'+fmt(d.r)+'</td>'+
+      vs.map(v=>'<td class="'+(v===mn&&v!==null?'best':'')+'">'+( v!==null?fmt(v):'N/A')+'</td>').join('')+
+      '<td class="best">'+(mn!==null?REG[vs.findIndex(v=>v===mn)]:'—')+'</td></tr>';
+  }).join('');
 }
-document.querySelectorAll('input,select').forEach(el=>el.addEventListener('input',render));
+document.querySelectorAll('input,select').forEach(e=>e.addEventListener('input',render));
 render();
-</script>
-</body>
-</html>
+</script></body></html>
